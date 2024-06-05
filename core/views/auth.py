@@ -4,13 +4,19 @@ from rest_framework.parsers import JSONParser
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework_simplejwt.tokens import AccessToken
 
-from backend_app.settings import APP_NAME
+from backend_app.settings import (
+    APP_NAME,
+    USER_INVITE_JWT_EXPIRY_TIMEDELTA,
+)
 from core.models import UserInvite
 from core.serializers import (
     GetUserDataFromInviteTokenRequestBodySerializer,
     SendRegisterInviteViaEmailRequestBodySerializer,
+)
+from core.utils.jwt_utils import (
+    generate_jwt,
+    verify_jwt,
 )
 
 
@@ -46,6 +52,7 @@ class RequestEmailUserInviteAPIView(APIView):
             }, status=status.HTTP_400_BAD_REQUEST)
         
         payload = {
+            'type': "user_invite_token",
             'email': email,
             'full_name': full_name,
             'senders_name': senders_name,
@@ -54,13 +61,13 @@ class RequestEmailUserInviteAPIView(APIView):
             },
         }
         
-        token = AccessToken()
-        token.payload = payload
+        token = generate_jwt(payload, USER_INVITE_JWT_EXPIRY_TIMEDELTA)
         print(str(token))
         
         return Response({
             'success': True,
             'result': {
+                'user_friendly_message': "Please check your email for steps to continue the registration.",
                 'user_invite': {
                     'id': user_invite.id,
                 },
@@ -72,7 +79,7 @@ class GetUserDataFromInviteTokenAPIView(APIView):
     permission_classes = [AllowAny]
     parser_classes = [JSONParser]
 
-    def get(self, request):
+    def post(self, request):
         body_serializer = GetUserDataFromInviteTokenRequestBodySerializer(data=request.data)
         if not body_serializer.is_valid():
             return Response({
@@ -80,32 +87,35 @@ class GetUserDataFromInviteTokenAPIView(APIView):
                 'errors': body_serializer.errors
             }, status=status.HTTP_400_BAD_REQUEST)
         
-        token = request.data.get('token')
+        token_str = request.data.get('token')
 
-
-
-        # full_name = request.data.get('name')
-
-        # try:
-        #     user_invite = UserInvite.objects.create(
-        #         email=email,
-        #         name=full_name,
-        #         senders_name=f"{APP_NAME} Auth Service"
-        #     )
-        #     user_invite.save()
-        # except ValidationError as e:
-        #     return Response({
-        #         'success': False,
-        #         'error': {
-        #             'message': str(e),
-        #         }
-        #     }, status=status.HTTP_400_BAD_REQUEST)
+        verification_success, verification_result = verify_jwt(token_str)
+        if not verification_success:
+            if verification_result == "expired":
+                return Response({
+                    'success': True,
+                    'error': {
+                        'message': "Verification token expired.",
+                        'user_friendly_message': "The verification link has expired.",
+                    },
+                }, status=status.HTTP_400_BAD_REQUEST)
+            elif verification_result == "invalid":
+                return Response({
+                    'success': True,
+                    'error': {
+                        'message': "Verification token invalid.",
+                        'user_friendly_message': "The verification link is invalid.",
+                    },
+                }, status=status.HTTP_400_BAD_REQUEST)
         
-        # return Response({
-        #     'success': True,
-        #     'result': {
-        #         'user_invite': {
-        #             'id': user_invite.id,
-        #         },
-        #     },
-        # }, status=status.HTTP_201_CREATED)
+        jwt_payload = verification_result
+        
+        return Response({
+            'success': True,
+            'result': {
+                'user_invite': {
+                    'email': jwt_payload['email'],
+                    'full_name': jwt_payload['full_name'],
+                },
+            },
+        }, status=status.HTTP_201_CREATED)
