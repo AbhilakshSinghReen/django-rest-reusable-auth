@@ -63,6 +63,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'backend_app.wsgi.application'
+AUTH_USER_MODEL = 'core.CustomUser'
 
 
 # Database
