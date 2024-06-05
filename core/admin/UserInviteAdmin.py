@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from core.models import UserInvite
+from core.models.models import UserInvite
 
 
 def send_invite():
