@@ -6,6 +6,7 @@ from decouple import config
 # Load env vars
 DEBUG = config('DEBUG', default=False, cast=bool)
 SECRET_KEY = config('SECRET_KEY')
+APP_NAME = config('APP_NAME')
 CS__ALLOWED_HOSTS = config('CS__ALLOWED_HOSTS')
 CS__CORS_ORIGIN_WHITELIST = config('CS__CORS_ORIGIN_WHITELIST')
 

@@ -48,8 +48,8 @@ class UserInvite(models.Model):
     def __str__(self):
         return self.email
     
-    # def save(self, *args, **kwargs):
-    #     if CustomUser.objects.filter(email=self.email).exists():
-    #         raise ValidationError("A user with this email has already been registered.")
+    def save(self, *args, **kwargs):
+        if CustomUser.objects.filter(email=self.email).exists():
+            raise ValidationError("A user with this email has already been registered.")
         
-    #     super().save(*args, **kwargs)
+        super().save(*args, **kwargs)
