@@ -25,9 +25,6 @@ class CustomUserChangeForm(forms.ModelForm):
 
 class CustomUserAdmin(UserAdmin):
     model = CustomUser
-
-    add_form = CustomUserCreationForm
-    form = CustomUserChangeForm
     
     list_display = ('email', 'full_name', 'is_staff', 'is_active')
     list_filter = ('is_staff', 'is_active', 'groups')
@@ -47,6 +44,14 @@ class CustomUserAdmin(UserAdmin):
     )
 
     search_fields = ('email', 'full_name')
+
+    def get_form(self, request, obj=None, **kwargs):
+        if obj:
+            self.form = CustomUserChangeForm
+        else:
+            self.form = CustomUserCreationForm
+        
+        return super().get_form(request, obj, **kwargs)
 
     def get_readonly_fields(self, request, obj=None):
         if obj:
