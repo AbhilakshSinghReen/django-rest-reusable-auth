@@ -24,12 +24,12 @@ class CustomUser(AbstractUser, PermissionsMixin):
 
 
 class UserInvite(models.Model):
-    TO_SEND = 'to_send'
+    QUEUED = 'queued'
     SENT = 'sent'
     USER_CREATED = 'user_created'
     
     STATUS_CHOICES = [
-        (TO_SEND, 'To Send'),
+        (QUEUED, 'Invite Queued'),
         (SENT, 'Sent'),
         (USER_CREATED, 'User Created'),
     ]
@@ -37,8 +37,9 @@ class UserInvite(models.Model):
     email = models.EmailField(unique=True, max_length=255, blank=False)
     name = models.CharField(max_length=255, blank=False)
     senders_name = models.CharField(max_length=255, blank=False)
-    invite_sent_at = models.DateField(default=timezone.now)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=TO_SEND)
+    invite_sent_at = models.DateTimeField(default=timezone.now)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=QUEUED)
+    resend_invite = models.BooleanField(default=True)
 
     class Meta:
         verbose_name = 'User Invite'
