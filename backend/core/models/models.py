@@ -40,6 +40,7 @@ class UserInvite(models.Model):
     invite_sent_at = models.DateTimeField(blank=True, null=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=QUEUED)
     resend_invite = models.BooleanField(default=True)
+    token = models.TextField(blank=True, null=True)
 
     class Meta:
         verbose_name = 'User Invite'

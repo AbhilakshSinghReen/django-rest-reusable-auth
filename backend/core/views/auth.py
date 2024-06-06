@@ -8,6 +8,7 @@ from rest_framework.views import APIView
 from backend_app.settings import (
     APP_NAME,
     USER_INVITE_JWT_EXPIRY_TIMEDELTA,
+    USER_SELF_REGISTRATION_ENABLED,
 )
 from core.models import UserInvite
 from core.serializers import (
@@ -25,18 +26,30 @@ class RequestEmailUserInviteAPIView(APIView):
     parser_classes = [JSONParser]
 
     def post(self, request):
+        if not USER_SELF_REGISTRATION_ENABLED:
+            print("foo")
+            return Response({
+                'success': False,
+                'error': {
+                    'message': "User registration is through invitation only.",
+                    'user_friendly_message': "User registration is through invitation only.",
+                },
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+
         body_serializer = SendRegisterInviteViaEmailRequestBodySerializer(data=request.data)
         if not body_serializer.is_valid():
             return Response({
                 'success': False,
-                'errors': body_serializer.errors
+                'validation_errors': body_serializer.errors
             }, status=status.HTTP_400_BAD_REQUEST)
         
         email = request.data.get('email')
-        full_name = request.data.get('name')
+        full_name = request.data.get('name', "None")
         senders_name = f"{APP_NAME} Auth Service"
 
         try:
+            # check is the previous invite has expired if one already exists for this email
             user_invite = UserInvite.objects.create(
                 email=email,
                 name=full_name,
@@ -84,7 +97,7 @@ class GetUserDataFromInviteTokenAPIView(APIView):
         if not body_serializer.is_valid():
             return Response({
                 'success': False,
-                'errors': body_serializer.errors
+                'validation_errors': body_serializer.errors
             }, status=status.HTTP_400_BAD_REQUEST)
         
         token_str = request.data.get('token')

@@ -8,6 +8,7 @@ from decouple import config
 DEBUG = config('DEBUG', default=False, cast=bool)
 SECRET_KEY = config('SECRET_KEY')
 APP_NAME = config('APP_NAME')
+USER_SELF_REGISTRATION_ENABLED = config('USER_SELF_REGISTRATION_ENABLED', default=False, cast=bool)
 CS__ALLOWED_HOSTS = config('CS__ALLOWED_HOSTS')
 CS__CORS_ORIGIN_WHITELIST = config('CS__CORS_ORIGIN_WHITELIST')
 

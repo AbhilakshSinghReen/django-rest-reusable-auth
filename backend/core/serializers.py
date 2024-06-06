@@ -6,7 +6,7 @@ from .models import UserInvite, CustomUser
 class SendRegisterInviteViaEmailRequestBodySerializer(serializers.ModelSerializer):
     class Meta:
         model = UserInvite
-        fields = ['email', 'name']
+        fields = ['email']
 
 
 class GetUserDataFromInviteTokenRequestBodySerializer(serializers.Serializer):
