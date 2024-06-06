@@ -37,6 +37,7 @@ class UserInvite(models.Model):
     email = models.EmailField(unique=True, max_length=255, blank=False)
     name = models.CharField(max_length=255, blank=False)
     senders_name = models.CharField(max_length=255, blank=False)
+    invite_expiry_timestamp = models.DateTimeField(blank=False)
     invite_sent_at = models.DateTimeField(blank=True, null=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=QUEUED)
     resend_invite = models.BooleanField(default=True)

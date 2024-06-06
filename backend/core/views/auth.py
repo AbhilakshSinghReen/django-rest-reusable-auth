@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.core.exceptions import ValidationError
 from rest_framework import status
 from rest_framework.parsers import JSONParser
@@ -27,7 +29,6 @@ class RequestEmailUserInviteAPIView(APIView):
 
     def post(self, request):
         if not USER_SELF_REGISTRATION_ENABLED:
-            print("foo")
             return Response({
                 'success': False,
                 'error': {
@@ -35,8 +36,7 @@ class RequestEmailUserInviteAPIView(APIView):
                     'user_friendly_message': "User registration is through invitation only.",
                 },
             }, status=status.HTTP_400_BAD_REQUEST)
-
-
+        
         body_serializer = SendRegisterInviteViaEmailRequestBodySerializer(data=request.data)
         if not body_serializer.is_valid():
             return Response({
@@ -49,33 +49,47 @@ class RequestEmailUserInviteAPIView(APIView):
         senders_name = f"{APP_NAME} Auth Service"
 
         try:
-            # check is the previous invite has expired if one already exists for this email
+            existing_user_invite = UserInvite.objects.get(email=email)
+            if existing_user_invite.invite_expiry_timestamp > (datetime.now() + USER_INVITE_JWT_EXPIRY_TIMEDELTA):
+                user_invite = existing_user_invite
+
+                user_invite.invite_expiry_timestamp = datetime.now() + USER_INVITE_JWT_EXPIRY_TIMEDELTA
+
+                payload = {
+                    'type': "user_invite_token",
+                    'email': email,
+                    'full_name': full_name,
+                    'senders_name': senders_name,
+                    'user_invite': {
+                        'id': user_invite.id,
+                    },
+                }
+                token = generate_jwt(payload, USER_INVITE_JWT_EXPIRY_TIMEDELTA)
+
+                user_invite.token = token
+                user_invite.save()
+        except:
             user_invite = UserInvite.objects.create(
                 email=email,
                 name=full_name,
-                senders_name=senders_name
+                senders_name=senders_name,
+                invite_expiry_timestamp=datetime.now() + USER_INVITE_JWT_EXPIRY_TIMEDELTA,
             )
             user_invite.save()
-        except ValidationError as e:
-            return Response({
-                'success': False,
-                'error': {
-                    'message': str(e),
-                }
-            }, status=status.HTTP_400_BAD_REQUEST)
-        
-        payload = {
-            'type': "user_invite_token",
-            'email': email,
-            'full_name': full_name,
-            'senders_name': senders_name,
-            'user_invite': {
-                'id': user_invite.id,
-            },
-        }
-        
-        token = generate_jwt(payload, USER_INVITE_JWT_EXPIRY_TIMEDELTA)
-        print(str(token))
+
+            payload = {
+                'type': "user_invite_token",
+                'email': email,
+                'full_name': full_name,
+                'senders_name': senders_name,
+                'user_invite': {
+                    'id': user_invite.id,
+                },
+            }
+            token = generate_jwt(payload, USER_INVITE_JWT_EXPIRY_TIMEDELTA)
+
+            user_invite.token = token
+            user_invite.save()
         
         return Response({
             'success': True,
@@ -132,3 +146,7 @@ class GetUserDataFromInviteTokenAPIView(APIView):
                 },
             },
         }, status=status.HTTP_201_CREATED)
+
+
+# class RegisterUser
+# Verify Token, create user, delete invite

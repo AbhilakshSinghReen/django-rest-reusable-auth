@@ -7,6 +7,7 @@ from decouple import config
 # Load env vars
 DEBUG = config('DEBUG', default=False, cast=bool)
 SECRET_KEY = config('SECRET_KEY')
+EMAIL_SERVICE_API_KEY = config('EMAIL_SERVICE_API_KEY')
 APP_NAME = config('APP_NAME')
 USER_SELF_REGISTRATION_ENABLED = config('USER_SELF_REGISTRATION_ENABLED', default=False, cast=bool)
 CS__ALLOWED_HOSTS = config('CS__ALLOWED_HOSTS')
