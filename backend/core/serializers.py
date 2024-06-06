@@ -11,3 +11,8 @@ class SendRegisterInviteViaEmailRequestBodySerializer(serializers.ModelSerialize
 
 class GetUserDataFromInviteTokenRequestBodySerializer(serializers.Serializer):
     token = serializers.CharField()
+
+
+class MarkEmailAsSentRequestBodySerializer(serializers.Serializer):
+    email_type = serializers.CharField()
+    email = serializers.EmailField()

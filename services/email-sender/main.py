@@ -66,7 +66,7 @@ class EmailServiceHandler:
     def mark_email_as_sent(self, email_type, receivers_address):
         request_body = {
             'email_type': email_type,
-            'receivers_address': receivers_address,
+            'email': receivers_address,
         }
 
         response = requests.post(
@@ -77,6 +77,9 @@ class EmailServiceHandler:
 
         if response.status_code != 200:
             self.mark_consecutive_fail_count += 1
+
+            logger(response.status_code)
+            logger(response.json())
 
             logger(f"Failed to mark email as sent from endpoint: {MARK_EMAIL_AS_SENT_ENDPOINT}")
 
@@ -105,7 +108,9 @@ def main_loop(email_service_handler):
             email_message.set_content(email_detail['plain_text_content'])
             email_message.add_alternative(email_detail['html_content'], subtype='html')
 
-            smtp.send_message(email_message)
+            print(f"Sent email of type {email_detail['type']} to {email_detail['receivers_address']}.")
+            sleep(2)
+            # smtp.send_message(email_message)
 
             email_service_handler.mark_email_as_sent(
                 email_detail['type'],

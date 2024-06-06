@@ -9,6 +9,10 @@ templates_to_load_paths = {
     'emails/user-invites/no_sender.txt': path_join(templates_dir, 'emails', 'user-invites', 'no_sender.txt'),
     'emails/user-invites/no_receiver.txt': path_join(templates_dir, 'emails', 'user-invites', 'no_receiver.txt'),
     'emails/user-invites/no_sender_no_receiver.txt': path_join(templates_dir, 'emails', 'user-invites', 'no_sender_no_receiver.txt'),
+    'emails/user-invites/complete.html': path_join(templates_dir, 'emails', 'user-invites', 'complete.html'),
+    'emails/user-invites/no_sender.html': path_join(templates_dir, 'emails', 'user-invites', 'no_sender.html'),
+    'emails/user-invites/no_receiver.html': path_join(templates_dir, 'emails', 'user-invites', 'no_receiver.html'),
+    'emails/user-invites/no_sender_no_receiver.html': path_join(templates_dir, 'emails', 'user-invites', 'no_sender_no_receiver.html'),
 }
 
 

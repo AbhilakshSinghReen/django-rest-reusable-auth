@@ -1,7 +1,10 @@
+from datetime import datetime
+
 from django import forms
 from django.contrib import admin
 from django.core.exceptions import ValidationError
 
+from backend_app.settings import USER_INVITE_JWT_EXPIRY_TIMEDELTA
 from core.models.models import CustomUser, UserInvite
 
 
@@ -41,5 +44,7 @@ class UserInviteAdmin(admin.ModelAdmin):
     def save_model(self, request, obj, form, change):
         if not change:
             obj.status = UserInvite.QUEUED
+        
+        obj.invite_expiry_timestamp=datetime.now() + USER_INVITE_JWT_EXPIRY_TIMEDELTA
         
         super().save_model(request, obj, form, change)

@@ -46,27 +46,13 @@ class RequestEmailUserInviteAPIView(APIView):
         
         email = request.data.get('email')
         full_name = request.data.get('name', "None")
-        senders_name = f"{APP_NAME} Auth Service"
+        senders_name = "None"
 
         try:
             existing_user_invite = UserInvite.objects.get(email=email)
             if existing_user_invite.invite_expiry_timestamp > (datetime.now() + USER_INVITE_JWT_EXPIRY_TIMEDELTA):
                 user_invite = existing_user_invite
-
                 user_invite.invite_expiry_timestamp = datetime.now() + USER_INVITE_JWT_EXPIRY_TIMEDELTA
-
-                payload = {
-                    'type': "user_invite_token",
-                    'email': email,
-                    'full_name': full_name,
-                    'senders_name': senders_name,
-                    'user_invite': {
-                        'id': user_invite.id,
-                    },
-                }
-                token = generate_jwt(payload, USER_INVITE_JWT_EXPIRY_TIMEDELTA)
-
-                user_invite.token = token
                 user_invite.save()
         except:
             user_invite = UserInvite.objects.create(
@@ -75,20 +61,6 @@ class RequestEmailUserInviteAPIView(APIView):
                 senders_name=senders_name,
                 invite_expiry_timestamp=datetime.now() + USER_INVITE_JWT_EXPIRY_TIMEDELTA,
             )
-            user_invite.save()
-
-            payload = {
-                'type': "user_invite_token",
-                'email': email,
-                'full_name': full_name,
-                'senders_name': senders_name,
-                'user_invite': {
-                    'id': user_invite.id,
-                },
-            }
-            token = generate_jwt(payload, USER_INVITE_JWT_EXPIRY_TIMEDELTA)
-
-            user_invite.token = token
             user_invite.save()
         
         return Response({

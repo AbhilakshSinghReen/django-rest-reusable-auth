@@ -1,21 +1,28 @@
-from backend_app.settings import APP_NAME, FRONTEND_BASE_URL
+from django.db.models import Q
+
+from backend_app.settings import APP_NAME, FRONTEND_BASE_URL, USER_INVITE_JWT_EXPIRY_TIMEDELTA
 from core.models import UserInvite
 from core.redis_client import get_password_reset_via_email_requests
+from core.utils.jwt_utils import generate_jwt
 from core.utils.templates import load_templates
 
 
 templates = load_templates()
 
 
-def generate_user_invite_plain_text_content(invite_token, receivers_name=None, senders_name=None):
-    selected_template = "emails/user-invites/complete.txt"
+def generate_user_invite_content(content_type, invite):
+    invite_token = invite.token
+    receivers_name = invite.name
+    senders_name = invite.senders_name
 
-    if senders_name is None and receivers_name is None:
-        selected_template = "emails/user-invites/no_sender_no_receiver.txt"
-    elif senders_name is None:
-        selected_template = "emails/user-invites/no_sender.txt"
-    elif receivers_name is None:
-        selected_template = "emails/user-invites/no_receiver.txt"
+    selected_template = "emails/user-invites/complete" + f".{content_type}"
+
+    if senders_name == "None" and receivers_name == "None":
+        selected_template = "emails/user-invites/no_sender_no_receiver" + f".{content_type}"
+    elif senders_name == "None":
+        selected_template = "emails/user-invites/no_sender" + f".{content_type}"
+    elif receivers_name == "None":
+        selected_template = "emails/user-invites/no_receiver" + f".{content_type}"
     
     populated_template = templates[selected_template]
 
@@ -29,22 +36,35 @@ def generate_user_invite_plain_text_content(invite_token, receivers_name=None, s
     return populated_template
 
 
-def construct_user_invite_email(invite):
-    email = {
-        'type': 'user_invite',
-        'receivers_address': invite.email,
-        'subject': f"{APP_NAME} Registration",
-        'plain_text_content': "",
-        'html_content': "",
-    }
-    return email
-
-
 def get_user_invite_emails():
-    queued_invites = UserInvite.objects.filter(status=UserInvite.QUEUED)
-    user_invite_emails = [construct_user_invite_email(invite) for invite in queued_invites]
+    queued_invites = UserInvite.objects.filter(Q(status=UserInvite.QUEUED) | Q(resend_invite=True))
+    
+    user_invite_emails = []
+    for invite in queued_invites:
+        payload = {
+            'type': "user_invite_token",
+            'email': invite.email,
+            'full_name': invite.name,
+            'senders_name': invite.senders_name,
+            'user_invite': {
+                'id': invite.id,
+            },
+        }
+        token = generate_jwt(payload, USER_INVITE_JWT_EXPIRY_TIMEDELTA)
+
+        invite.token = token
+        invite.save()
+
+        user_invite_emails.append({
+            'type': 'user_invite',
+            'receivers_address': invite.email,
+            'subject': f"{APP_NAME} Registration",
+            'plain_text_content': generate_user_invite_content('txt', invite),
+            'html_content': generate_user_invite_content('html', invite),
+        })
+
     return user_invite_emails
 
 
 def get_password_reset_emails():
-    pass
+    return []
