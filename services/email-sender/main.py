@@ -109,6 +109,11 @@ def main_loop(email_service_handler):
             email_message.add_alternative(email_detail['html_content'], subtype='html')
 
             print(f"Sent email of type {email_detail['type']} to {email_detail['receivers_address']}.")
+            print(email_detail['plain_text_content'])
+            print()
+            print("--------------------------------------------------")
+            print()
+            print()
             sleep(2)
             # smtp.send_message(email_message)
 

@@ -16,3 +16,10 @@ class GetUserDataFromInviteTokenRequestBodySerializer(serializers.Serializer):
 class MarkEmailAsSentRequestBodySerializer(serializers.Serializer):
     email_type = serializers.CharField()
     email = serializers.EmailField()
+
+
+class RegisterUserUsingInviteTokenRequestBodySerializer(serializers.Serializer):
+    token = serializers.CharField()
+    email = serializers.EmailField()
+    full_name = serializers.CharField()
+    password = serializers.CharField()
