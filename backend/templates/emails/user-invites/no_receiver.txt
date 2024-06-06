@@ -1,0 +1,5 @@
+Greetings,
+    {{senders_name}} has invited you to register for {{app_name}}. To complete your registration, head on to {{registration_url}}.
+
+Regards,
+The {{app_name}} Team

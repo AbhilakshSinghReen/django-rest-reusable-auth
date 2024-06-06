@@ -150,3 +150,17 @@ class GetUserDataFromInviteTokenAPIView(APIView):
 
 # class RegisterUser
 # Verify Token, create user, delete invite
+
+# request reset password via email
+
+# verify reset password token
+
+# reset password
+
+# login
+
+# refresh access token
+
+# blacklist refresh token
+
+# sample protected route
