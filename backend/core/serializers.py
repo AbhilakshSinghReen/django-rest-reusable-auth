@@ -4,16 +4,14 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, Toke
 from rest_framework_simplejwt.state import token_backend
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from .models import UserInvite, CustomUser
+from .models import CustomUser
 
 
-class SendRegisterInviteViaEmailRequestBodySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = UserInvite
-        fields = ['email']
+class EmailRequestBodySerializer(serializers.ModelSerializer):
+    email = serializers.EmailField()
 
 
-class GetUserDataFromInviteTokenRequestBodySerializer(serializers.Serializer):
+class GetUserDataFromTokenRequestBodySerializer(serializers.Serializer):
     token = serializers.CharField()
 
 
@@ -26,6 +24,12 @@ class RegisterUserUsingInviteTokenRequestBodySerializer(serializers.Serializer):
     token = serializers.CharField()
     email = serializers.EmailField()
     full_name = serializers.CharField()
+    password = serializers.CharField()
+
+
+class ResetPasswordUsingResetPasswordTokenRequestBodySerializer(serializers.Serializer):
+    token = serializers.CharField()
+    email = serializers.EmailField()
     password = serializers.CharField()
 
 

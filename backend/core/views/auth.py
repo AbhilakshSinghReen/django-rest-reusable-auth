@@ -14,13 +14,17 @@ from backend_app.settings import (
     USER_SELF_REGISTRATION_ENABLED,
 )
 from core.models import CustomUser, UserInvite
+from core.redis_client import (
+    add_password_reset_via_email_request,
+)
 from core.serializers import (
-    GetUserDataFromInviteTokenRequestBodySerializer,
-    SendRegisterInviteViaEmailRequestBodySerializer,
+    GetUserDataFromTokenRequestBodySerializer,
+    EmailRequestBodySerializer,
     RegisterUserUsingInviteTokenRequestBodySerializer,
     CustomTokenObtainPairSerializer,
     CustomTokenRefreshSerializer,
     LogoutRequestBodySerializer,
+    ResetPasswordUsingResetPasswordTokenRequestBodySerializer,
 )
 from core.utils.jwt_utils import (
     verify_jwt,
@@ -41,7 +45,7 @@ class RequestEmailUserInviteAPIView(APIView):
                 },
             }, status=status.HTTP_400_BAD_REQUEST)
         
-        body_serializer = SendRegisterInviteViaEmailRequestBodySerializer(data=request.data)
+        body_serializer = EmailRequestBodySerializer(data=request.data)
         if not body_serializer.is_valid():
             return Response({
                 'success': False,
@@ -91,7 +95,7 @@ class GetUserDataFromInviteTokenAPIView(APIView):
     parser_classes = [JSONParser]
 
     def post(self, request):
-        body_serializer = GetUserDataFromInviteTokenRequestBodySerializer(data=request.data)
+        body_serializer = GetUserDataFromTokenRequestBodySerializer(data=request.data)
         if not body_serializer.is_valid():
             return Response({
                 'success': False,
@@ -213,15 +217,146 @@ class RegisterUserUsingInviteTokenAPIView(APIView):
 
 
 class RequestPasswordResetViaEmailAPIView(APIView):
-    pass
+    permission_classes = [AllowAny]
+    parser_classes = [JSONParser]
+
+    def post(self, request):
+        body_serializer = EmailRequestBodySerializer(data=request.data)
+        if not body_serializer.is_valid():
+            return Response({
+                'success': False,
+                'validation_errors': body_serializer.errors
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        email = request.data.get('email')
+
+        add_password_reset_via_email_request(email)
+
+        return Response({
+            'success': True,
+            'result': {
+                'user_friendly_message': "Please check your email to reset your password.",
+            },
+        }, status=status.HTTP_200_OK)
 
 
 class GetUserDataFromPasswordResetTokenAPIView(APIView):
-    pass
+    permission_classes = [AllowAny]
+    parser_classes = [JSONParser]
+
+    def post(self, request):
+        body_serializer = GetUserDataFromTokenRequestBodySerializer(data=request.data)
+        if not body_serializer.is_valid():
+            return Response({
+                'success': False,
+                'validation_errors': body_serializer.errors
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        token_str = request.data.get('token')
+
+        verification_success, verification_result = verify_jwt(token_str)
+        if not verification_success:
+            if verification_result == "expired":
+                return Response({
+                    'success': True,
+                    'error': {
+                        'message': "Verification token expired.",
+                        'user_friendly_message': "The verification link has expired.",
+                    },
+                }, status=status.HTTP_400_BAD_REQUEST)
+            elif verification_result == "invalid":
+                return Response({
+                    'success': True,
+                    'error': {
+                        'message': "Verification token invalid.",
+                        'user_friendly_message': "The verification link is invalid.",
+                    },
+                }, status=status.HTTP_400_BAD_REQUEST)
+        
+        jwt_payload = verification_result
+        
+        return Response({
+            'success': True,
+            'result': {
+                'user': {
+                    'email': jwt_payload['email'],
+                    'full_name': jwt_payload['full_name'],
+                },
+            },
+        }, status=status.HTTP_201_CREATED)
 
 
 class ResetPasswordUsingPasswordResetTokenAPIView(APIView):
-    pass
+    permission_classes = [AllowAny]
+    parser_classes = [JSONParser]
+
+    def post(self, request):
+        body_serializer = ResetPasswordUsingResetPasswordTokenRequestBodySerializer(data=request.data)
+        if not body_serializer.is_valid():
+            return Response({
+                'success': False,
+                'validation_errors': body_serializer.errors
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        token_str = request.data.get('token')
+        email = request.data.get('email')
+        password = request.data.get('password')
+        
+        # Validate token
+        verification_success, verification_result = verify_jwt(token_str)
+        if not verification_success:
+            if verification_result == "expired":
+                return Response({
+                    'success': False,
+                    'error': {
+                        'message': "Verification token expired.",
+                        'user_friendly_message': "The verification link has expired.",
+                    },
+                }, status=status.HTTP_400_BAD_REQUEST)
+            elif verification_result == "invalid":
+                return Response({
+                    'success': False,
+                    'error': {
+                        'message': "Verification token invalid.",
+                        'user_friendly_message': "The verification link is invalid.",
+                    },
+                }, status=status.HTTP_400_BAD_REQUEST)
+        
+        jwt_payload = verification_result
+
+        # Cross check provided email with email of user invite object
+        if jwt_payload['email'] != email:
+            return Response({
+                'success': False,
+                'error': {
+                    'message': "Email provided does not match with the email corresponding to the link.",
+                },
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Find User object with that email and update its password
+        try:
+            user = CustomUser.objects.get(email=email)
+            user.set_password(password)
+            user_invite = UserInvite.objects.get(token=token_str)
+        except:
+            return Response({
+                'success': False,
+                'error': {
+                    'message': "Verification token invalid.",
+                    'user_friendly_message': "The verification link is invalid.",
+                },
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        return Response({
+            'success': True,
+            'result': {
+                'message': "Password reset successful.",
+                'user_friendly_message': "Password reset successful.",
+                'user': {
+                    'id': user.id,
+                },
+            },
+        }, status=status.HTTP_200_OK)
 
 
 class CustomTokenObtainPairView(TokenObtainPairView):
