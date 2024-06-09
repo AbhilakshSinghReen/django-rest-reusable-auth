@@ -18,7 +18,7 @@ CLOUD_STORAGE_BASE_URL = config('CLOUD_STORAGE_BASE_URL')
 REDIS_HOST = config('REDIS_HOST')
 REDIS_PORT = config('REDIS_PORT', cast=int)
 REDIS_DB = config('REDIS_DB', default=0, cast=int)
-REDIS_PASSWORD = config('REDIS_PORT', default=None)
+REDIS_PASSWORD = config('REDIS_PASSWORD', default=None)
 
 
 ALLOWED_HOSTS=["*"] if DEBUG else CS__ALLOWED_HOSTS.split(',')

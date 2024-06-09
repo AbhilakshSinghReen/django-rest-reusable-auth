@@ -1,5 +1,5 @@
 Greetings,
-    To complete your registration, head on to {{registration_url}}.
+    To complete your registration for {{app_name}}, please head on to {{registration_url}}. The Link is only valid for the next {{link_expiry_in}}.
 
 Regards,
 The {{app_name}} Team

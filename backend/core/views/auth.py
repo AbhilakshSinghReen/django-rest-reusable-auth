@@ -291,7 +291,7 @@ class ResetPasswordUsingPasswordResetTokenAPIView(APIView):
     permission_classes = [AllowAny]
     parser_classes = [JSONParser]
 
-    def post(self, request):
+    def patch(self, request):
         body_serializer = ResetPasswordUsingResetPasswordTokenRequestBodySerializer(data=request.data)
         if not body_serializer.is_valid():
             return Response({
@@ -308,7 +308,7 @@ class ResetPasswordUsingPasswordResetTokenAPIView(APIView):
         if not verification_success:
             if verification_result == "expired":
                 return Response({
-                    'success': False,
+                    'success': True,
                     'error': {
                         'message': "Verification token expired.",
                         'user_friendly_message': "The verification link has expired.",
@@ -316,7 +316,7 @@ class ResetPasswordUsingPasswordResetTokenAPIView(APIView):
                 }, status=status.HTTP_400_BAD_REQUEST)
             elif verification_result == "invalid":
                 return Response({
-                    'success': False,
+                    'success': True,
                     'error': {
                         'message': "Verification token invalid.",
                         'user_friendly_message': "The verification link is invalid.",
@@ -337,8 +337,6 @@ class ResetPasswordUsingPasswordResetTokenAPIView(APIView):
         # Find User object with that email and update its password
         try:
             user = CustomUser.objects.get(email=email)
-            user.set_password(password)
-            user_invite = UserInvite.objects.get(token=token_str)
         except:
             return Response({
                 'success': False,
@@ -348,6 +346,9 @@ class ResetPasswordUsingPasswordResetTokenAPIView(APIView):
                 },
             }, status=status.HTTP_400_BAD_REQUEST)
         
+        user.set_password(password)
+        user.save()
+
         return Response({
             'success': True,
             'result': {

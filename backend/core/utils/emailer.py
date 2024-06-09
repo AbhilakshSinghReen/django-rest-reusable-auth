@@ -75,7 +75,7 @@ def get_user_invite_emails():
 
 
 def generate_password_reset_email_content(content_type, user, token):
-    user_full_name = user.name
+    user_full_name = user.full_name
 
     selected_template = "emails/password-reset/primary" + f".{content_type}"
 
@@ -105,7 +105,7 @@ def get_password_reset_emails():
         payload = {
             'type': "password_reset_token",
             'email': user.email,
-            'full_name': user.name,
+            'full_name': user.full_name,
         }
         token = generate_jwt(payload, PASSWORD_RESET_JWT_EXPIRY_TIMEDELTA)
 

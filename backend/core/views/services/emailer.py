@@ -44,7 +44,7 @@ class MarkEmailAsSentAPIView(APIView):
     parser_classes = [JSONParser]
 
     def post(self, request):
-        api_key = request.headers.get('X-SERVICE-API-KEY')
+        api_key = request.headers.get('X-SERVICE-API-KEY', None)
 
         if api_key != EMAIL_SERVICE_API_KEY:
             return Response({

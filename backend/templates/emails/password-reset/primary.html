@@ -1,0 +1,17 @@
+<html>
+  <body style="font-family: Arial, sans-serif; color: #333; padding: 20px">
+    <p>Dear {{user_full_name}},</p>
+    <p>
+      To reset your {{app_name}} password, please head on to
+      <a href="{{password_reset_url}}" target="_blank" style="color: #1a73e8; text-decoration: none">this Link</a>. The
+      Link is only valid for the next {{link_expiry_in}}.
+    </p>
+
+    <p>
+      Do not forward this email to anyone. The {{app_name}} will never ask for your password or the password reset link.
+      In case you did not raise a request to reset your password, you may simply ignore this email.
+    </p>
+    <p>Regards,</p>
+    <p>The <strong>{{app_name}}</strong> Team</p>
+  </body>
+</html>

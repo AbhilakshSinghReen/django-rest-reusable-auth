@@ -7,7 +7,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from .models import CustomUser
 
 
-class EmailRequestBodySerializer(serializers.ModelSerializer):
+class EmailRequestBodySerializer(serializers.Serializer):
     email = serializers.EmailField()
 
 

@@ -1,0 +1,7 @@
+Dear {{user_full_name}},
+    To reset your {{app_name}} password, please head on to {{password_reset_url}}. The Link is only valid for the next {{link_expiry_in}}.
+
+Do not forward this email to anyone. The {{app_name}} will never ask for your password or the password reset link. In case you did not raise a request to reset your password, you may simply ignore this email.
+
+Regards,
+The {{app_name}} Team

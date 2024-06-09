@@ -1,5 +1,12 @@
 <html>
-  <body>
-    Greetings, To complete your registration, head on to {{registration_url}}. Regards, The {{app_name}} Team
+  <body style="font-family: Arial, sans-serif; color: #333; padding: 20px">
+    <p>Greetings,</p>
+    <p>
+      To complete your registration for {{app_name}}, please head on to
+      <a href="{{registration_url}}" target="_blank" style="color: #1a73e8; text-decoration: none">this Link</a>. The
+      Link is only valid for the next {{link_expiry_in}}.
+    </p>
+    <p>Regards,</p>
+    <p>The <strong>{{app_name}}</strong> Team</p>
   </body>
 </html>

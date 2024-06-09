@@ -13,6 +13,9 @@ templates_to_load_paths = {
     'emails/user-invites/no_sender.html': path_join(templates_dir, 'emails', 'user-invites', 'no_sender.html'),
     'emails/user-invites/no_receiver.html': path_join(templates_dir, 'emails', 'user-invites', 'no_receiver.html'),
     'emails/user-invites/no_sender_no_receiver.html': path_join(templates_dir, 'emails', 'user-invites', 'no_sender_no_receiver.html'),
+    
+    'emails/password-reset/primary.txt': path_join(templates_dir, 'emails', 'password-reset', 'primary.txt'),
+    'emails/password-reset/primary.html': path_join(templates_dir, 'emails', 'password-reset', 'primary.html'),
 }
 
 

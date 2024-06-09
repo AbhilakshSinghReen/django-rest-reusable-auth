@@ -1,5 +1,5 @@
 Greetings,
-    {{senders_name}} has invited you to register for {{app_name}}. To complete your registration, head on to {{registration_url}}.
+    {{senders_name}} has invited you to register for {{app_name}}. To complete your registration, please head on to {{registration_url}}. The Link is only valid for the next {{link_expiry_in}}.
 
 Regards,
 The {{app_name}} Team
