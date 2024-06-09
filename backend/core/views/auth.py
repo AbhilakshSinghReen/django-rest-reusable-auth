@@ -3,9 +3,10 @@ from datetime import datetime
 from django.core.exceptions import ValidationError
 from rest_framework import status
 from rest_framework.parsers import JSONParser
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
@@ -388,4 +389,15 @@ class LogoutAPIView(APIView):
         }, status=status.HTTP_200_OK)
 
 
-# sample protected route
+class GetFooAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+
+    def get(self, _request):
+        return Response({
+            'success': True,
+            'result': {
+                'message': "foo",
+                'user_friendly_message': "foo",
+            },
+        }, status=status.HTTP_200_OK)

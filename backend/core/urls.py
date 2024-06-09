@@ -11,6 +11,7 @@ from core.views.auth import (
     CustomTokenObtainPairView,
     CustomTokenRefreshView,
     LogoutAPIView,
+    GetFooAPIView,
 )
 from core.views.services.emailer import (
     GetEmailsToSendAPIView,
@@ -33,7 +34,8 @@ urlpatterns = [
     path('auth/login/', CustomTokenObtainPairView.as_view(), name="token_obtain_pair"),
     path('auth/token/refresh/', CustomTokenRefreshView.as_view(), name="token_refresh"),
     path('auth/logout/', LogoutAPIView.as_view(), name="logout"),
-
+    path('auth/get-foo/', GetFooAPIView.as_view(), name="get_foo"),
+    
     ### Services
     # Emailer
     path('services/emailer/get-emails-to-send/', GetEmailsToSendAPIView.as_view(), name='get_emails_to_send'),
