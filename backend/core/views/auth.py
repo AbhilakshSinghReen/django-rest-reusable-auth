@@ -212,6 +212,18 @@ class RegisterUserUsingInviteTokenAPIView(APIView):
         }, status=status.HTTP_201_CREATED)
 
 
+class RequestPasswordResetViaEmailAPIView(APIView):
+    pass
+
+
+class GetUserDataFromPasswordResetTokenAPIView(APIView):
+    pass
+
+
+class ResetPasswordUsingPasswordResetTokenAPIView(APIView):
+    pass
+
+
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
 
@@ -240,20 +252,5 @@ class LogoutAPIView(APIView):
             }
         }, status=status.HTTP_200_OK)
 
-
-# class RegisterUser
-# Verify Token, create user, delete invite
-
-# request reset password via email
-
-# verify reset password token
-
-# reset password
-
-# login
-
-# refresh access token
-
-# blacklist refresh token
 
 # sample protected route
