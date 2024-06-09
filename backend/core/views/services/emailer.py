@@ -8,6 +8,7 @@ from rest_framework.views import APIView
 
 from backend_app.settings import EMAIL_SERVICE_API_KEY
 from core.models import UserInvite
+from core.redis_client import remove_password_reset_via_email_request
 from core.serializers import MarkEmailAsSentRequestBodySerializer
 from core.utils.emailer import (
     get_user_invite_emails,
@@ -73,7 +74,7 @@ class MarkEmailAsSentAPIView(APIView):
             except:
                 pass
         elif email_type == "user_password_reset":
-            pass
+            remove_password_reset_via_email_request(email)
         else:
             return Response({
                 'success': False,
