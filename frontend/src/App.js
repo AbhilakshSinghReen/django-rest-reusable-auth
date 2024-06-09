@@ -3,6 +3,9 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 import CompleteSignup from "./pages/auth/CompleteSignup";
 import GetSignupInvite from "./pages/auth/GetSignupInvite";
+import RequestPasswordReset from "./pages/auth/RequestPasswordReset";
+import ResetPassword from "./pages/auth/ResetPassword";
+import Login from "./pages/auth/Login";
 import Layout from "./components/Layout";
 import ThemeRegistry from "./components/ThemeRegistry";
 import UserContextProvider from "./contextProviders/UserContextProvider";
@@ -26,6 +29,9 @@ export default function App() {
             <Routes>
               <Route path="/auth/get-signup-email" element={<GetSignupInvite />} />
               <Route path="/auth/complete-signup/:userInviteToken" element={<CompleteSignup />} />
+              <Route path="/auth/request-password-reset" element={<RequestPasswordReset />} />
+              <Route path="/auth/reset-password/:passwordResetToken" element={<ResetPassword />} />
+              <Route path="/auth/signin" element={<Login />} />
             </Routes>
           </Layout>
         </Router>

@@ -8,10 +8,9 @@ import { BeatLoader } from "react-spinners";
 import { CSSTransition } from "react-transition-group";
 
 import apiClient from "../../api/apiClient";
-import { appName, userSelfRegistrationEnabled } from "../../config/config";
-import OscillatingLogo from "../../components/OscillatingLogo";
+import { appName } from "../../config/config";
 
-export default function GetSignupInvite() {
+export default function RequestPasswordReset() {
   const [isLoading, setIsLoading] = useState(false);
   const [hasSentEmail, setHasSentEmail] = useState(false);
   const [email, setEmail] = useState("");
@@ -19,7 +18,7 @@ export default function GetSignupInvite() {
   const handleContinueButtonClick = async (_e) => {
     setIsLoading(true);
 
-    const responseData = await apiClient.requestEmailUserInvite(email);
+    const responseData = await apiClient.requestPasswordResetViaEmail(email);
     if (!responseData.success) {
       window.alert(responseData.error.user_friendly_message);
       setIsLoading(false);
@@ -31,59 +30,8 @@ export default function GetSignupInvite() {
   };
 
   useEffect(() => {
-    document.title = `Register Your Account - ${appName}`;
+    document.title = `Reset Your Password - ${appName}`;
   }, []);
-
-  if (!userSelfRegistrationEnabled) {
-    return (
-      <Box
-        sx={{
-          position: "relative",
-          width: "100%",
-          height: "100vh",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "flex-start",
-          alignItems: "center",
-          overflow: "hidden",
-          paddingTop: 2,
-        }}
-      >
-        <OscillatingLogo />
-        <Typography
-          variant="h4"
-          sx={{
-            fontWeight: "bold",
-            textAlign: "center",
-            "&:hover": {
-              cursor: "pointer",
-            },
-            background: "linear-gradient(45deg, #FFD700 30%, #FFA500 90%)",
-            "-webkit-background-clip": "text",
-            "-webkit-text-fill-color": "transparent",
-            marginTop: 1,
-            marginBottom: 2,
-          }}
-        >
-          {appName}
-        </Typography>
-
-        <Typography variant="h6" gutterBottom>
-          <strong>Registration of New Accounts is Disabled</strong>
-        </Typography>
-        <Box
-          sx={{
-            width: "80%",
-            borderBottom: "1px solid grey",
-          }}
-        />
-
-        <Typography variant="p" gutterBottom sx={{ marginTop: 2 }}>
-          Registration is via invitation only. Please contact an admin for more details.
-        </Typography>
-      </Box>
-    );
-  }
 
   return (
     <Container
@@ -111,7 +59,6 @@ export default function GetSignupInvite() {
             marginTop: 2,
           }}
         >
-          <OscillatingLogo />
           <Typography
             variant="h4"
             sx={{
@@ -141,7 +88,7 @@ export default function GetSignupInvite() {
             }}
           >
             <Typography variant="h5" gutterBottom>
-              <strong>Register Your Account</strong>
+              <strong>Reset Your Password</strong>
             </Typography>
             <Box
               sx={{
@@ -150,6 +97,11 @@ export default function GetSignupInvite() {
               }}
             />
           </Box>
+
+          <Typography variant="body1" sx={{ marginBottom: 2 }}>
+            Enter your email to continue. A link to reset your password will be shared with you.
+          </Typography>
+
           <TextField
             placeholder="Your Email"
             value={email}
@@ -199,7 +151,7 @@ export default function GetSignupInvite() {
               }}
             />
           </Box>
-          <Typography variant="body1">We've sent you an email. Please check your inbox to proceed.</Typography>
+          <Typography variant="body1">We've sent you a link to reset your password.</Typography>
         </Box>
       </CSSTransition>
     </Container>

@@ -1,11 +1,12 @@
 import { useLocation } from "react-router-dom";
 
 import Navbar from "./Navbar";
+import { isPathnameIncluded } from "../utils/routeUtils";
 
 export default function Header({ themeMode, setThemeMode }) {
   const { pathname } = useLocation();
 
-  if (pathnamesToHideHeaderOn.includes(pathname)) {
+  if (isPathnameIncluded(pathnamesToHideHeaderOn, pathname)) {
     return null;
   }
 
@@ -18,5 +19,9 @@ export default function Header({ themeMode, setThemeMode }) {
 }
 
 const pathnamesToHideHeaderOn = [
-  // "/auth/get-signup-email"
+  "/auth/get-signup-email",
+  "/auth/complete-signup",
+  "/auth/request-password-reset",
+  "/auth/reset-password",
+  "/auth/signin",
 ];

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
+import Container from "@mui/material/Container";
 import LinearProgress from "@mui/material/LinearProgress";
 import Skeleton from "@mui/material/Skeleton";
 import TextField from "@mui/material/TextField";
@@ -12,6 +13,7 @@ import { CSSTransition } from "react-transition-group";
 
 import apiClient from "../../api/apiClient";
 import { appName } from "../../config/config";
+import SunriseLogo from "../../components/SunriseLogo";
 
 export default function CompleteSignup() {
   const navigate = useNavigate();
@@ -207,7 +209,8 @@ export default function CompleteSignup() {
   }
 
   return (
-    <Box
+    <Container
+      maxWidth="sm"
       sx={{
         position: "relative",
         width: "100%",
@@ -228,10 +231,27 @@ export default function CompleteSignup() {
             flexDirection: "column",
             justifyContent: "flex-start",
             alignItems: "center",
-            marginTop: 1,
+            marginTop: 2,
           }}
         >
-          <img src="/logo192.png" />
+          <SunriseLogo />
+          <Typography
+            variant="h4"
+            sx={{
+              fontWeight: "bold",
+              textAlign: "center",
+              "&:hover": {
+                cursor: "pointer",
+              },
+              background: "linear-gradient(45deg, #FFD700 30%, #FFA500 90%)",
+              "-webkit-background-clip": "text",
+              "-webkit-text-fill-color": "transparent",
+              marginTop: 1,
+              marginBottom: 2,
+            }}
+          >
+            {appName}
+          </Typography>
           <Box
             sx={{
               width: "80%",
@@ -363,6 +383,6 @@ export default function CompleteSignup() {
           </Box>
         </Box>
       </CSSTransition>
-    </Box>
+    </Container>
   );
 }

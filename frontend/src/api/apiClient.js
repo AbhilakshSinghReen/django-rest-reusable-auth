@@ -17,7 +17,14 @@ class APIClient {
         user_friendly_message: "Server Error.",
       },
     };
+
+    this.tokens = {
+      access: "",
+      refresh: "",
+    };
   }
+
+  async refreshAccessToken() {}
 
   async makeRequest(method, url, body = {}, headers = {}, addAuth = false) {
     if (addAuth) {
@@ -94,14 +101,44 @@ class APIClient {
       new_password: newPassword,
     };
 
-    return await this.makeRequest("POST", apiEndpoints.auth.resetPasswordUsingPasswordResetToken(), requestBody);
+    return await this.makeRequest("PATCH", apiEndpoints.auth.resetPasswordUsingPasswordResetToken(), requestBody);
   }
 
-  async obtainAuthTokenPair() {}
+  async obtainAuthTokenPair(email, password) {
+    const requestBody = {
+      email: email,
+      password: password,
+    };
 
-  async refreshAccessToken() {}
+    const responseData = await this.makeRequest("POST", apiEndpoints.auth.obtainAuthTokenPair(), requestBody);
+    if (!responseData.refresh || !responseData.access) {
+      return {
+        success: false,
+        error: {
+          user_friendly_message: "No account found with the provided credentials.",
+        },
+      };
+    }
 
-  async blacklistRefreshToken() {}
+    const updatedResponseData = {
+      success: true,
+      tokens: responseData,
+    };
+    return updatedResponseData;
+  }
+
+  async blacklistRefreshToken() {
+    const refreshToken = JSON.parse(localStorage.getItem("tokens")).refresh;
+    const requestBody = {
+      token: refreshToken,
+    };
+
+    const responseData = await this.makeRequest("POST", apiEndpoints.auth.blacklistRefreshToken(), requestBody);
+
+    localStorage.clear();
+
+    return responseData;
+  }
 }
 
 const apiClient = new APIClient();
