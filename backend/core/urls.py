@@ -31,9 +31,9 @@ urlpatterns = [
     path('auth/reset-password-using-password-reset-token/', ResetPasswordUsingPasswordResetTokenAPIView.as_view(), name='reset_password_using_password_reset_token'),
     
     # Access and Refresh Tokens
-    path('auth/login/', CustomTokenObtainPairView.as_view(), name="token_obtain_pair"),
-    path('auth/token/refresh/', CustomTokenRefreshView.as_view(), name="token_refresh"),
-    path('auth/logout/', LogoutAPIView.as_view(), name="logout"),
+    path('auth/login/', CustomTokenObtainPairView.as_view(), name="obtain_auth_token_pair"),
+    path('auth/token/refresh/', CustomTokenRefreshView.as_view(), name="refresh_access_token"),
+    path('auth/logout/', LogoutAPIView.as_view(), name="blacklist_refresh_token"),
     path('auth/get-foo/', GetFooAPIView.as_view(), name="get_foo"),
     
     ### Services

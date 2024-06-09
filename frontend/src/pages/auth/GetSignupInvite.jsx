@@ -6,6 +6,7 @@ import Typography from "@mui/material/Typography";
 import { BeatLoader } from "react-spinners";
 import { CSSTransition } from "react-transition-group";
 
+import apiClient from "../../api/apiClient";
 import { appName } from "../../config/config";
 
 export default function GetSignupInvite() {
@@ -13,44 +14,23 @@ export default function GetSignupInvite() {
   const [hasSentEmail, setHasSentEmail] = useState(false);
   const [email, setEmail] = useState("");
 
-  useEffect(() => {
-    document.title = `Register Your Account - ${appName}`;
-  }, []);
-
-  const apiUrl = "http://localhost:8000/api/v1/auth/request-email-user-invite/";
-
   const handleContinueButtonClick = async (_e) => {
     setIsLoading(true);
 
-    const requestBody = {
-      email: email,
-    };
-
-    try {
-      const response = await fetch(apiUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(requestBody),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        console.log("Invitation sent successfully:", data);
-      } else {
-        console.error("Error sending invitation:", data);
-      }
-    } catch (error) {
-      console.error("Error:", error);
+    const responseData = await apiClient.requestEmailUserInvite(email);
+    if (!responseData.success) {
+      window.alert(responseData.error.user_friendly_message);
+      setIsLoading(false);
+      return;
     }
 
-    // setTimeout(() => {
     setIsLoading(false);
     setHasSentEmail(true);
-    // }, 1500);
   };
+
+  useEffect(() => {
+    document.title = `Register Your Account - ${appName}`;
+  }, []);
 
   return (
     <Box
@@ -81,16 +61,23 @@ export default function GetSignupInvite() {
           <Box
             sx={{
               width: "80%",
-              maxWidth: "350px",
-              borderBottom: "1px solid grey",
+              marginTop: 2,
               marginBottom: 2,
               display: "flex",
-              justifyContent: "center",
+              flexDirection: "column",
+              justifyContent: "flex-start",
+              alignItems: "center",
             }}
           >
             <Typography variant="h5" gutterBottom>
               <strong>Register Your Account</strong>
             </Typography>
+            <Box
+              sx={{
+                width: "80%",
+                borderBottom: "1px solid grey",
+              }}
+            />
           </Box>
           <TextField
             placeholder="Your Email"
@@ -123,16 +110,23 @@ export default function GetSignupInvite() {
           <Box
             sx={{
               width: "80%",
-              maxWidth: "350px",
-              borderBottom: "1px solid grey",
+              marginTop: 2,
               marginBottom: 2,
               display: "flex",
-              justifyContent: "center",
+              flexDirection: "column",
+              justifyContent: "flex-start",
+              alignItems: "center",
             }}
           >
-            <Typography variant="h4" gutterBottom>
+            <Typography variant="h5" gutterBottom>
               Check Your Email
             </Typography>
+            <Box
+              sx={{
+                width: "80%",
+                borderBottom: "1px solid grey",
+              }}
+            />
           </Box>
           <Typography variant="body1">We've sent you an email. Please check your inbox to proceed.</Typography>
         </Box>

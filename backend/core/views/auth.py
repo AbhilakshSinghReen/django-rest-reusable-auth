@@ -111,7 +111,7 @@ class GetUserDataFromInviteTokenAPIView(APIView):
         if not verification_success:
             if verification_result == "expired":
                 return Response({
-                    'success': True,
+                    'success': False,
                     'error': {
                         'message': "Verification token expired.",
                         'user_friendly_message': "The verification link has expired.",
@@ -119,7 +119,7 @@ class GetUserDataFromInviteTokenAPIView(APIView):
                 }, status=status.HTTP_400_BAD_REQUEST)
             elif verification_result == "invalid":
                 return Response({
-                    'success': True,
+                    'success': False,
                     'error': {
                         'message': "Verification token invalid.",
                         'user_friendly_message': "The verification link is invalid.",
@@ -325,7 +325,7 @@ class ResetPasswordUsingPasswordResetTokenAPIView(APIView):
         
         token_str = request.data.get('token')
         email = request.data.get('email')
-        password = request.data.get('password')
+        new_password = request.data.get('new_password')
         
         # Validate token
         verification_success, verification_result = verify_jwt(token_str)
@@ -380,7 +380,7 @@ class ResetPasswordUsingPasswordResetTokenAPIView(APIView):
                 },
             }, status=status.HTTP_400_BAD_REQUEST)
         
-        user.set_password(password)
+        user.set_password(new_password)
         user.save()
         blacklist_token(token_str, jwt_payload['exp'])
         print(jwt_payload['exp'])

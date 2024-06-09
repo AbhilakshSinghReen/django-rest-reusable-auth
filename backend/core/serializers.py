@@ -30,7 +30,7 @@ class RegisterUserUsingInviteTokenRequestBodySerializer(serializers.Serializer):
 class ResetPasswordUsingResetPasswordTokenRequestBodySerializer(serializers.Serializer):
     token = serializers.CharField()
     email = serializers.EmailField()
-    password = serializers.CharField()
+    new_password = serializers.CharField()
 
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
