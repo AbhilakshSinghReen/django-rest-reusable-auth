@@ -115,7 +115,7 @@ def main_loop(email_service_handler):
             print()
             print()
             # sleep(2)
-            # smtp.send_message(email_message)
+            smtp.send_message(email_message)
 
             email_service_handler.mark_email_as_sent(
                 email_detail['type'],

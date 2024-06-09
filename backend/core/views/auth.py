@@ -60,11 +60,9 @@ class RequestEmailUserInviteAPIView(APIView):
         senders_name = "None"
 
         try:
-            existing_user_invite = UserInvite.objects.get(email=email)
-            if existing_user_invite.invite_expiry_timestamp > (datetime.now() + USER_INVITE_JWT_EXPIRY_TIMEDELTA):
-                user_invite = existing_user_invite
-                user_invite.invite_expiry_timestamp = datetime.now() + USER_INVITE_JWT_EXPIRY_TIMEDELTA
-                user_invite.save()
+            user_invite = UserInvite.objects.get(email=email)
+            user_invite.invite_expiry_timestamp = datetime.now() + USER_INVITE_JWT_EXPIRY_TIMEDELTA
+            user_invite.save()
         except:
             try:
                 user_invite = UserInvite.objects.create(

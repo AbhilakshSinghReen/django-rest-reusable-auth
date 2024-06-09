@@ -6,6 +6,7 @@ import GetSignupInvite from "./pages/auth/GetSignupInvite";
 import RequestPasswordReset from "./pages/auth/RequestPasswordReset";
 import ResetPassword from "./pages/auth/ResetPassword";
 import Login from "./pages/auth/Login";
+import Home from "./pages/Home";
 import Layout from "./components/Layout";
 import ThemeRegistry from "./components/ThemeRegistry";
 import UserContextProvider from "./contextProviders/UserContextProvider";
@@ -32,6 +33,7 @@ export default function App() {
               <Route path="/auth/request-password-reset" element={<RequestPasswordReset />} />
               <Route path="/auth/reset-password/:passwordResetToken" element={<ResetPassword />} />
               <Route path="/auth/signin" element={<Login />} />
+              <Route path="/" element={<Home />} />
             </Routes>
           </Layout>
         </Router>
