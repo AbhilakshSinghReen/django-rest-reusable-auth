@@ -17,6 +17,8 @@ from backend_app.settings import (
 from core.models import CustomUser, UserInvite
 from core.redis_client import (
     add_password_reset_via_email_request,
+    blacklist_token,
+    check_if_token_is_blacklisted,
 )
 from core.serializers import (
     GetUserDataFromTokenRequestBodySerializer,
@@ -125,6 +127,18 @@ class GetUserDataFromInviteTokenAPIView(APIView):
                 }, status=status.HTTP_400_BAD_REQUEST)
         
         jwt_payload = verification_result
+
+        # Find UserInvite object with that token
+        try:
+            _user_invite = UserInvite.objects.get(token=token_str)
+        except:
+            return Response({
+                'success': False,
+                'error': {
+                    'message': "Verification token invalid.",
+                    'user_friendly_message': "The verification link is invalid.",
+                },
+            }, status=status.HTTP_400_BAD_REQUEST)
         
         return Response({
             'success': True,
@@ -276,6 +290,16 @@ class GetUserDataFromPasswordResetTokenAPIView(APIView):
         
         jwt_payload = verification_result
         
+        # Check if token has already been used
+        if check_if_token_is_blacklisted(token_str, jwt_payload['exp']):
+            return Response({
+                'success': False,
+                'error': {
+                    'message': "Password reset token already used.",
+                    'user_friendly_message': "This Password Reset Link has already been used.",
+                },
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
         return Response({
             'success': True,
             'result': {
@@ -325,6 +349,16 @@ class ResetPasswordUsingPasswordResetTokenAPIView(APIView):
         
         jwt_payload = verification_result
 
+        # Check if token has already been used
+        if check_if_token_is_blacklisted(token_str, jwt_payload['exp']):
+            return Response({
+                'success': False,
+                'error': {
+                    'message': "Password reset token already used.",
+                    'user_friendly_message': "This Password Reset Link has already been used.",
+                },
+            }, status=status.HTTP_400_BAD_REQUEST)
+
         # Cross check provided email with email of user invite object
         if jwt_payload['email'] != email:
             return Response({
@@ -348,6 +382,8 @@ class ResetPasswordUsingPasswordResetTokenAPIView(APIView):
         
         user.set_password(password)
         user.save()
+        blacklist_token(token_str, jwt_payload['exp'])
+        print(jwt_payload['exp'])
 
         return Response({
             'success': True,
