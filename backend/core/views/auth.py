@@ -6,9 +6,10 @@ from rest_framework.parsers import JSONParser
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 from backend_app.settings import (
-    APP_NAME,
     USER_INVITE_JWT_EXPIRY_TIMEDELTA,
     USER_SELF_REGISTRATION_ENABLED,
 )
@@ -17,9 +18,11 @@ from core.serializers import (
     GetUserDataFromInviteTokenRequestBodySerializer,
     SendRegisterInviteViaEmailRequestBodySerializer,
     RegisterUserUsingInviteTokenRequestBodySerializer,
+    CustomTokenObtainPairSerializer,
+    CustomTokenRefreshSerializer,
+    LogoutRequestBodySerializer,
 )
 from core.utils.jwt_utils import (
-    generate_jwt,
     verify_jwt,
 )
 
@@ -56,13 +59,21 @@ class RequestEmailUserInviteAPIView(APIView):
                 user_invite.invite_expiry_timestamp = datetime.now() + USER_INVITE_JWT_EXPIRY_TIMEDELTA
                 user_invite.save()
         except:
-            user_invite = UserInvite.objects.create(
-                email=email,
-                name=full_name,
-                senders_name=senders_name,
-                invite_expiry_timestamp=datetime.now() + USER_INVITE_JWT_EXPIRY_TIMEDELTA,
-            )
-            user_invite.save()
+            try:
+                user_invite = UserInvite.objects.create(
+                    email=email,
+                    name=full_name,
+                    senders_name=senders_name,
+                    invite_expiry_timestamp=datetime.now() + USER_INVITE_JWT_EXPIRY_TIMEDELTA,
+                )
+                user_invite.save()
+            except ValidationError as validation_error:
+                return Response({
+                    'success': False,
+                    'error': {
+                        'user_friendly_message': validation_error,
+                    },
+                }, status=status.HTTP_201_CREATED)
         
         return Response({
             'success': True,
@@ -182,10 +193,10 @@ class RegisterUserUsingInviteTokenAPIView(APIView):
             }, status=status.HTTP_400_BAD_REQUEST)
         
         # Create User and delete the UserInvite object
-        user = CustomUser.objects.create(
+        user = CustomUser.objects.create_user(
             email=email,
-            full_name=full_name,
-            password=password
+            password=password,
+            full_name=full_name
         )
         user_invite.delete()
 
@@ -199,6 +210,35 @@ class RegisterUserUsingInviteTokenAPIView(APIView):
                 },
             },
         }, status=status.HTTP_201_CREATED)
+
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer
+
+
+class CustomTokenRefreshView(TokenRefreshView):
+    serializer_class = CustomTokenRefreshSerializer
+
+
+class LogoutAPIView(APIView):
+    def post(self, request):
+        body_serializer = LogoutRequestBodySerializer(data=request.data)
+        if not body_serializer.is_valid():
+            return Response({
+                'success': False,
+                'validation_errors': body_serializer.errors
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        token = RefreshToken(request.data.get('refresh'))
+        token.blacklist()
+
+        return Response({
+            'success': True,
+            'result': {
+                'message': "Logout successful.",
+                'user_friendly_message': "Logout successful.",
+            }
+        }, status=status.HTTP_200_OK)
 
 
 # class RegisterUser
