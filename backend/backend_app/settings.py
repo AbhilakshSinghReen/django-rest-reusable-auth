@@ -1,4 +1,5 @@
 from datetime import timedelta
+from os.path import join as path_join
 from pathlib import Path
 
 from decouple import config
@@ -50,6 +51,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
     'core',
+    'frontend_core',
 ]
 
 MIDDLEWARE = [
@@ -68,7 +70,10 @@ ROOT_URLCONF = 'backend_app.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [
+            path_join(BASE_DIR, "build"),
+            path_join(BASE_DIR, "templates"),
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -131,6 +136,11 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = path_join(BASE_DIR, 'static')
+STATICFILES_DIRS = (
+    path_join(BASE_DIR, "build"),
+    path_join(BASE_DIR, "build/static"),
+)
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field

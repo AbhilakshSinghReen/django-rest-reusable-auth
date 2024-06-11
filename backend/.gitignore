@@ -8,3 +8,7 @@ env
 
 # Temporarily ignoring migrations
 core/migrations
+
+media
+static
+build
